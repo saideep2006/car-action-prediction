@@ -1,0 +1,62 @@
+{
+  "algorithm": "Decision Tree",
+  "task": "Multi-Class Classification",
+  "number_of_classes": 8,
+  "training_samples": 4800,
+  "test_samples": 1200,
+  "features": [
+    "speed",
+    "acceleration",
+    "steering_angle",
+    "distance_ahead",
+    "lane_position",
+    "traffic_density",
+    "traffic_light",
+    "obstacle_detected",
+    "road_condition",
+    "weather",
+    "road_curvature"
+  ],
+  "results": {
+    "Logistic Regression": {
+      "accuracy": 0.735,
+      "precision": 0.760647075640638,
+      "recall": 0.735,
+      "f1_score": 0.7420913469103885
+    },
+    "Decision Tree": {
+      "accuracy": 0.9258333333333333,
+      "precision": 0.9262099002696845,
+      "recall": 0.9258333333333333,
+      "f1_score": 0.9257484306384388
+    },
+    "Random Forest": {
+      "accuracy": 0.8916666666666667,
+      "precision": 0.8999627765083353,
+      "recall": 0.8916666666666667,
+      "f1_score": 0.8929752016114137
+    },
+    "SVM": {
+      "accuracy": 0.8425,
+      "precision": 0.8451934801762714,
+      "recall": 0.8425,
+      "f1_score": 0.8414355021755898
+    }
+  },
+  "best_model_metrics": {
+    "accuracy": 0.9258333333333333,
+    "precision": 0.9262099002696845,
+    "recall": 0.9258333333333333,
+    "f1_score": 0.9257484306384388
+  },
+  "classes": [
+    "ACCELERATE",
+    "BRAKE",
+    "CHANGE_LANE_LEFT",
+    "CHANGE_LANE_RIGHT",
+    "MAINTAIN_SPEED",
+    "STOP",
+    "TURN_LEFT",
+    "TURN_RIGHT"
+  ]
+}

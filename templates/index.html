@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAR ACTION PREDICTION</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">AI</span><div><h1>CAR ACTION PREDICTION</h1><p>Machine Learning Based Autonomous Driving Decision System</p></div></div>
+  <span class="status"><i></i> SIMULATION MODE</span>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <div>
+      <span class="eyebrow">ML • MULTI-CLASS CLASSIFICATION</span>
+      <h2>Predict the next driving action from vehicle and road conditions.</h2>
+      <p>Enter a driving state, send it through the trained Scikit-learn pipeline, and visualize the predicted action.</p>
+    </div>
+    <div class="hero-badge">8 ACTION CLASSES</div>
+  </section>
+
+  <section class="grid two">
+    <div class="panel">
+      <div class="panel-title"><h3>Vehicle Status</h3><span>INPUT</span></div>
+      <div class="form-grid">
+        <label>Vehicle Speed <input id="speed" type="number" min="0" max="150" step="0.1" value="50"><small>km/h</small></label>
+        <label>Acceleration <input id="acceleration" type="number" min="-10" max="10" step="0.1" value="0"><small>m/s²</small></label>
+        <label>Steering Angle <input id="steering_angle" type="number" min="-45" max="45" step="0.1" value="0"><small>degrees</small></label>
+        <label>Distance Ahead <input id="distance_ahead" type="number" min="0" max="200" step="0.1" value="50"><small>meters</small></label>
+        <label>Lane Position <select id="lane_position"><option>LEFT</option><option selected>CENTER</option><option>RIGHT</option></select></label>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><h3>Driving Conditions</h3><span>ENVIRONMENT</span></div>
+      <div class="form-grid">
+        <label>Traffic Density <select id="traffic_density"><option>LOW</option><option selected>MEDIUM</option><option>HIGH</option></select></label>
+        <label>Traffic Light <select id="traffic_light"><option>RED</option><option>YELLOW</option><option selected>GREEN</option><option>NONE</option></select></label>
+        <label>Obstacle Detected <select id="obstacle_detected"><option>YES</option><option selected>NO</option></select></label>
+        <label>Road Condition <select id="road_condition"><option selected>DRY</option><option>WET</option><option>SLIPPERY</option></select></label>
+        <label>Weather <select id="weather"><option selected>CLEAR</option><option>RAIN</option><option>FOG</option></select></label>
+        <label>Road Curvature <select id="road_curvature"><option selected>STRAIGHT</option><option>LEFT</option><option>RIGHT</option></select></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel scenarios">
+    <div class="panel-title"><h3>Example Scenarios</h3><span>QUICK LOAD</span></div>
+    <div class="scenario-grid">
+      <button class="scenario" data-scenario="red">Red Light <small>50 km/h • 8 m • RED • HIGH</small></button>
+      <button class="scenario" data-scenario="highway">Clear Highway <small>60 km/h • 80 m • GREEN • LOW</small></button>
+      <button class="scenario" data-scenario="curve">Left Curve <small>35 km/h • 50 m • NONE • LEFT</small></button>
+    </div>
+  </section>
+
+  <section class="action-row">
+    <button id="predictBtn" class="predict-btn">PREDICT ACTION <span>→</span></button>
+    <div id="errorBox" class="error" hidden></div>
+  </section>
+
+  <section class="grid two">
+    <div class="panel prediction-panel">
+      <div class="panel-title"><h3>Prediction Panel</h3><span>MODEL OUTPUT</span></div>
+      <div id="predictionCard" class="prediction-card neutral">
+        <div class="prediction-label">PREDICTED ACTION</div>
+        <div id="actionText" class="action-text">READY</div>
+        <div class="confidence"><span>Confidence</span><strong id="confidenceText">—</strong></div>
+        <p id="messageText">Enter conditions and click Predict Action.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><h3>Live Input Snapshot</h3><span>TELEMETRY</span></div>
+      <div class="telemetry">
+        <div><span>Speed</span><b id="snapSpeed">50 km/h</b></div>
+        <div><span>Acceleration</span><b id="snapAccel">0 m/s²</b></div>
+        <div><span>Distance</span><b id="snapDistance">50 m</b></div>
+        <div><span>Traffic</span><b id="snapTraffic">MEDIUM</b></div>
+        <div><span>Traffic Light</span><b id="snapLight">GREEN</b></div>
+        <div><span>Obstacle</span><b id="snapObstacle">NO</b></div>
+        <div><span>Lane</span><b id="snapLane">CENTER</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel simulation">
+    <div class="panel-title"><h3>Autonomous Car Visual Simulation</h3><span>ACADEMIC DEMO</span></div>
+    <div id="sim" class="road-scene">
+      <div class="traffic-light"><span id="lightRed"></span><span id="lightYellow"></span><span id="lightGreen"></span></div>
+      <div class="road">
+        <div class="lane-line l1"></div><div class="lane-line l2"></div>
+        <div id="aheadObject" class="ahead-object"></div>
+        <div id="car" class="car"><div class="wheel w1"></div><div class="wheel w2"></div><div class="car-window"></div><div class="tail t1"></div><div class="tail t2"></div></div>
+        <div id="directionArrow" class="direction-arrow">↑</div>
+      </div>
+      <div id="simText" class="sim-text">Simulation waiting for a prediction.</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title"><h3>How It Works</h3><span>PIPELINE</span></div>
+    <div class="pipeline">
+      <div><b>01</b><span>INPUT</span><small>Vehicle + environment</small></div><em>→</em>
+      <div><b>02</b><span>PREPROCESSING</span><small>Scaling + encoding</small></div><em>→</em>
+      <div><b>03</b><span>ML MODEL</span><small>Trained classifier</small></div><em>→</em>
+      <div><b>04</b><span>CLASSIFICATION</span><small>8 possible actions</small></div><em>→</em>
+      <div><b>05</b><span>PREDICTION</span><small>Action + confidence</small></div>
+    </div>
+  </section>
+
+  <section class="grid two">
+    <div class="panel">
+      <div class="panel-title"><h3>Machine Learning Model</h3><span>TRAINING</span></div>
+      <div class="model-stats" id="modelStats"><div>Loading metrics…</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><h3>Model Comparison</h3><span>TEST SET</span></div>
+      <canvas id="accuracyChart"></canvas>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title"><h3>Model Comparison Details</h3><span>ACTUAL METRICS</span></div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1 Score</th></tr></thead>
+      <tbody id="metricsTable"></tbody></table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title"><h3>Confusion Matrix</h3><span>SELECTED MODEL</span></div>
+    <img class="confusion" src="{{ url_for('static', filename='confusion_matrix.png') }}" alt="Confusion matrix generated during model training" onerror="this.style.display='none'">
+  </section>
+</main>
+
+<footer>
+  <p>This project is an academic machine-learning simulation for predicting driving actions. It is not intended for controlling real autonomous vehicles.</p>
+</footer>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
